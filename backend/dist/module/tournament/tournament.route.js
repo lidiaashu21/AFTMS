@@ -1,0 +1,13 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const validation_middleware_1 = require("../../middleware/validation.middleware");
+const tournament_validation_1 = require("./tournament.validation");
+const tournament_controller_1 = require("./tournament.controller");
+const router = (0, express_1.Router)();
+router.post("/", (0, validation_middleware_1.validate)(tournament_validation_1.createTournamentSchema), tournament_controller_1.createTournamentController);
+router.get("/", tournament_controller_1.getAllTournamentsController);
+router.get("/:id", tournament_controller_1.getTournamentByIdController);
+router.put("/:id", (0, validation_middleware_1.validate)(tournament_validation_1.updateTournamentSchema), tournament_controller_1.updateTournamentController);
+router.delete("/:id", tournament_controller_1.deleteTournamentController);
+exports.default = router;

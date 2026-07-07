@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const validation_middleware_1 = require("../../middleware/validation.middleware");
+const fixture_validation_1 = require("./fixture.validation");
+const fixture_controller_1 = require("./fixture.controller");
+const router = (0, express_1.Router)();
+router.post("/", (0, validation_middleware_1.validate)(fixture_validation_1.createFixtureSchema), fixture_controller_1.createFixtureController);
+router.get("/", fixture_controller_1.getFixturesController);
+router.patch("/:id", fixture_controller_1.updateFixtureController);
+router.delete("/:id", fixture_controller_1.deleteFixtureController);
+exports.default = router;
