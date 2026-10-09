@@ -4,14 +4,7 @@ CREATE TABLE "announcements" (
 	"message" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL
 );
-
-CREATE TYPE "public"."role" AS ENUM ('ADMIN', 'TEAM_MANAGER');
 --> statement-breakpoint
-CREATE TYPE "public"."payment_status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
---> statement-breakpoint
-CREATE TYPE "public"."match_status" AS ENUM ('UPCOMING', 'ONGOING', 'COMPLETED');
---> statement-breakpoint
-
 CREATE TABLE "fixtures" (
 	"id" text PRIMARY KEY NOT NULL,
 	"tournament_id" text NOT NULL,
