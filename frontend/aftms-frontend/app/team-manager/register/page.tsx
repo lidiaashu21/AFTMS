@@ -29,7 +29,7 @@ export default function TeamRegisterPaymentPage() {
     const fetchTournaments = async () => {
       try {
         const res = await fetch(
-          "http://localhost:5000/api/tournaments",
+          "https://aftms.onrender.com/api/tournaments",
         );
         const json = await res.json();
         setTournaments(json?.data || []);
@@ -71,7 +71,7 @@ export default function TeamRegisterPaymentPage() {
 
       if (receipt) formData.append("receipt", receipt);
 
-      const res = await fetch("http://localhost:5000/api/register", {
+      const res = await fetch("https://aftms.onrender.com/api/register", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token || ""}`,

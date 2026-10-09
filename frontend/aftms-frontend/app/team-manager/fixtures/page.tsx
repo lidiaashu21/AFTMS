@@ -63,7 +63,7 @@ export default function TeamFixturesPage() {
           throw new Error("No token found. Please login again.");
         }
 
-        const res = await fetch("http://localhost:5000/api/fixtures", {
+        const res = await fetch("https://aftms.onrender.com/api/fixtures", {
           method: "GET",
 
           headers: {

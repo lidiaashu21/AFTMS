@@ -31,7 +31,7 @@ export default function ReportsPage() {
           }
           return;
         }
-        const res = await fetch("http://localhost:5000/api/reports", {
+        const res = await fetch("https://aftms.onrender.com/api/reports", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

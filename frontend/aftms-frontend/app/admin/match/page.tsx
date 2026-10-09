@@ -13,7 +13,7 @@ interface Match {
   status: MatchStatus;
 }
 
-const API_URL = "http://localhost:5000/api/matches";
+const API_URL = "https://aftms.onrender.com/api/matches";
 
 /**
  * SAFE JSON PARSER (fixes "<!DOCTYPE html>" crash)

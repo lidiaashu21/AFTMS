@@ -29,7 +29,7 @@ export default function PaymentsPage() {
       setLoading(true);
       setError("");
 
-      const res = await fetch("http://localhost:5000/api/payments", {
+      const res = await fetch("https://aftms.onrender.com/api/payments", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -76,7 +76,7 @@ export default function PaymentsPage() {
       }
 
       const res = await fetch(
-        `http://localhost:5000/api/payments/${id}/status`,
+        `https://aftms.onrender.com/api/payments/${id}/status`,
         {
           method: "PATCH",
 

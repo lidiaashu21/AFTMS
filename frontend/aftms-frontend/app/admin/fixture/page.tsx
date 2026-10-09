@@ -45,9 +45,9 @@ export default function AdminFixturesPage() {
       setLoading(true);
 
       const [fRes, tRes, teamRes] = await Promise.all([
-        fetch("http://localhost:5000/api/fixtures"),
-        fetch("http://localhost:5000/api/tournaments"),
-        fetch("http://localhost:5000/api/teams"),
+        fetch("https://aftms.onrender.com/api/fixtures"),
+        fetch("https://aftms.onrender.com/api/tournaments"),
+        fetch("https://aftms.onrender.com/api/teams"),
       ]);
 
       const fJson = await fRes.json();
@@ -72,7 +72,7 @@ export default function AdminFixturesPage() {
 
   const createFixture = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/fixtures", {
+      const res = await fetch("https://aftms.onrender.com/api/fixtures", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -105,7 +105,7 @@ export default function AdminFixturesPage() {
     if (!confirm("Delete this fixture?")) return;
 
     const res = await fetch(
-      `http://localhost:5000/api/fixtures/${id}`,
+      `https://aftms.onrender.com/api/fixtures/${id}`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token || ""}` },
@@ -134,7 +134,7 @@ export default function AdminFixturesPage() {
     if (!editingId) return;
 
     const res = await fetch(
-      `http://localhost:5000/api/fixtures/${editingId}`,
+      `https://aftms.onrender.com/api/fixtures/${editingId}`,
       {
         method: "PATCH",
         headers: {

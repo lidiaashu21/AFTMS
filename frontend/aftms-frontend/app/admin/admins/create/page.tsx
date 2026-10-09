@@ -38,7 +38,7 @@ export default function CreateAdminPage() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5000/api/auth/create-admin",
+        "https://aftms.onrender.com/api/auth/create-admin",
         {
           method: "POST",
           headers: {

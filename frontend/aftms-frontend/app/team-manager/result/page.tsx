@@ -40,7 +40,7 @@ export default function TeamResultsPage() {
           throw new Error("No token found");
         }
 
-        const res = await fetch("http://localhost:5000/api/matches", {
+        const res = await fetch("https://aftms.onrender.com/api/matches", {
           method: "GET",
 
           headers: {

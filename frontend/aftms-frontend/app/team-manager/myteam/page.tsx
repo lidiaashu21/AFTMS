@@ -51,7 +51,7 @@ export default function MyTeamPage() {
         // ===========================
 
         const teamRes = await fetch(
-          "http://localhost:5000/api/teams",
+          "https://aftms.onrender.com/api/teams",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -74,7 +74,7 @@ export default function MyTeamPage() {
         // ===========================
 
         const paymentRes = await fetch(
-          "http://localhost:5000/api/payments",
+          "https://aftms.onrender.com/api/payments",
           {
             headers: {
               Authorization: `Bearer ${token}`,

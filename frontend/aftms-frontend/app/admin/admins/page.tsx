@@ -8,7 +8,7 @@ interface Admin {
   createdAt?: string;
 }
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://aftms.onrender.com/api";
 
 export default function AdminsPage() {
   const [admins, setAdmins] = useState<Admin[]>([]);

@@ -55,7 +55,7 @@ export default function CreateTournamentPage() {
       }
 
       const res = await fetch(
-        "http://localhost:5000/api/tournaments",
+        "https://aftms.onrender.com/api/tournaments",
         {
           method: "POST",
           headers: {

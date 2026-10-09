@@ -14,7 +14,7 @@ interface AnnouncementForm {
   message: string;
 }
 
-const API_BASE = "http://localhost:5000";
+const API_BASE = "https://aftms.onrender.com";
 
 export default function AdminAnnouncementsPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);

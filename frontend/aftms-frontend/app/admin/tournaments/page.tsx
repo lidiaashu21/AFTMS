@@ -15,7 +15,7 @@ type Tournament = {
 };
 
 // ✅ Single API URL
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://aftms.onrender.com/api";
 
 export default function TournamentsPage() {
   const router = useRouter();

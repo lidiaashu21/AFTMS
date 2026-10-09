@@ -59,7 +59,7 @@ export default function TournamentDetailsPage() {
         }
 
         const res = await fetch(
-          `http://localhost:5000/api/tournaments/${id}`,
+          `https://aftms.onrender.com/api/tournaments/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
