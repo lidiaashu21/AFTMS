@@ -1,15 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { User, Mail, Phone, Lock, UserPlus, ArrowLeft } from "lucide-react";
 
 import api from "../../service/api";
+import { persistSession } from "../../lib/session";
 import b1 from "../../public/image/b1.jpg";
 
 export default function RegisterPage() {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -60,18 +64,28 @@ export default function RegisterPage() {
 
       await api.post("/auth/register", payload);
 
-      setSuccess("Account created successfully. You can now login.");
+      setSuccess("Account created successfully. Redirecting to your dashboard...");
 
-      // Reset form after successful registration
-      setFormData({
-        name: "",
-        email: "",
-        phoneNumber: "",
-        password: "",
+      // Log the new manager straight in so they land on the dashboard
+      // instead of having to submit the login form a second time.
+      const loginRes = await api.post("/auth/login", {
+        email: payload.email,
+        password: payload.password,
       });
+
+      const loginData = loginRes.data?.data || loginRes.data;
+      const token = loginData?.token;
+      const user = loginData?.user;
+
+      if (!token || !user) {
+        throw new Error("Invalid server response");
+      }
+
+      persistSession(token, user);
+
+      router.replace("/team-manager/dashboard");
     } catch (err: any) {
       setError(err?.response?.data?.message || "Registration failed.");
-    } finally {
       setLoading(false);
     }
   };

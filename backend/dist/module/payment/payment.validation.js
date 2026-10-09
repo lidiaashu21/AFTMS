@@ -6,7 +6,8 @@ exports.createPaymentSchema = zod_1.z.object({
     body: zod_1.z.object({
         teamId: zod_1.z.string(),
         tournamentId: zod_1.z.string(),
-        amount: zod_1.z.number().min(1),
+        amount: zod_1.z.number().positive(),
+        transactionNumber: zod_1.z.string().min(3),
         receiptUrl: zod_1.z.string().optional(),
         method: zod_1.z.enum(["TELEBIRR", "CASH", "BANK"]),
     }),

@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFixtureController = exports.updateFixtureController = exports.getFixturesController = exports.createFixtureController = void 0;
 const fixture_service_1 = require("./fixture.service");
-// =========================
-// CREATE
-// =========================
+/*
+==================================================
+CREATE FIXTURE
+==================================================
+*/
 const createFixtureController = async (req, res) => {
     try {
         const data = await (0, fixture_service_1.createFixtureService)(req.body);
@@ -15,16 +17,18 @@ const createFixtureController = async (req, res) => {
     }
     catch (error) {
         console.error("CREATE FIXTURE ERROR:", error);
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
-            message: error.message || "Failed to create fixture",
+            message: error instanceof Error ? error.message : "Failed to create fixture",
         });
     }
 };
 exports.createFixtureController = createFixtureController;
-// =========================
-// GET ALL
-// =========================
+/*
+==================================================
+GET ALL FIXTURES
+==================================================
+*/
 const getFixturesController = async (req, res) => {
     try {
         const data = await (0, fixture_service_1.getFixturesService)();
@@ -34,26 +38,25 @@ const getFixturesController = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("GET FIXTURES ERROR:", error);
         return res.status(500).json({
             success: false,
-            message: error.message || "Failed to fetch fixtures",
+            message: error instanceof Error ? error.message : "Failed to fetch fixtures",
         });
     }
 };
 exports.getFixturesController = getFixturesController;
-// =========================
-// UPDATE
-// =========================
+/*
+==================================================
+UPDATE FIXTURE
+==================================================
+*/
 const updateFixtureController = async (req, res) => {
     try {
-        const idParam = req.params.id;
-        // ✅ FIX: ensure string type
-        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         if (!id) {
             return res.status(400).json({
                 success: false,
-                message: "Fixture ID is required",
+                message: "Fixture id required",
             });
         }
         const data = await (0, fixture_service_1.updateFixtureService)(id, req.body);
@@ -63,26 +66,25 @@ const updateFixtureController = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("UPDATE FIXTURE ERROR:", error);
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
-            message: error.message || "Failed to update fixture",
+            message: error instanceof Error ? error.message : "Failed to update fixture",
         });
     }
 };
 exports.updateFixtureController = updateFixtureController;
-// =========================
-// DELETE
-// =========================
+/*
+==================================================
+DELETE FIXTURE
+==================================================
+*/
 const deleteFixtureController = async (req, res) => {
     try {
-        const idParam = req.params.id;
-        // ✅ FIX: safe string conversion
-        const id = Array.isArray(idParam) ? idParam[0] : idParam;
+        const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
         if (!id) {
             return res.status(400).json({
                 success: false,
-                message: "Fixture ID is required",
+                message: "Fixture id required",
             });
         }
         await (0, fixture_service_1.deleteFixtureService)(id);
@@ -92,10 +94,9 @@ const deleteFixtureController = async (req, res) => {
         });
     }
     catch (error) {
-        console.error("DELETE FIXTURE ERROR:", error);
-        return res.status(500).json({
+        return res.status(400).json({
             success: false,
-            message: error.message || "Failed to delete fixture",
+            message: error instanceof Error ? error.message : "Failed to delete fixture",
         });
     }
 };

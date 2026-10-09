@@ -1,26 +1,52 @@
 import api from "./api";
 
+export interface Team {
+  id: string;
+  name: string;
+}
+
+export interface Tournament {
+  id: string;
+  name: string;
+  location?: string;
+}
+
 export interface Fixture {
   id: string;
-  homeTeam: string;
-  awayTeam: string;
+
+  homeTeam: Team;
+  awayTeam: Team;
+
   matchDate: string;
-  venue: string;
+
   status: "UPCOMING" | "ONGOING" | "COMPLETED";
-  homeScore?: number;
-  awayScore?: number;
+
+  tournament?: Tournament;
 }
 
 export interface CreateFixtureInput {
-  homeTeam: string;
-  awayTeam: string;
+  tournamentId: string;
+  homeTeamId: string;
+  awayTeamId: string;
   matchDate: string;
-  venue: string;
+}
+
+export interface UpdateFixtureInput {
+  tournamentId?: string;
+  homeTeamId?: string;
+  awayTeamId?: string;
+  matchDate?: string;
 }
 
 export const getFixtures = async (): Promise<Fixture[]> => {
   const res = await api.get("/fixtures");
-  return res.data;
+  const raw = res.data?.data || [];
+
+  return raw.map((f: any) => ({
+    ...f,
+    matchDate: f.fixtureDate || f.matchDate,
+    status: f.status || "UPCOMING",
+  }));
 };
 
 export const createFixture = async (

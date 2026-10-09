@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import {
   createPaymentService,
   getAllPaymentsService,
@@ -6,43 +7,52 @@ import {
   updatePaymentStatusService,
 } from "./payment.service";
 
-// CREATE
+import { PaymentStatus } from "./payment.types";
+
+/* =========================
+   CREATE PAYMENT
+========================= */
 export const createPaymentController = async (req: Request, res: Response) => {
   try {
-    const data = await createPaymentService(req.body);
+    const payment = await createPaymentService(req.body);
 
     return res.status(201).json({
       success: true,
-      data,
+      data: payment,
     });
-  } catch (error: any) {
-    return res.status(500).json({
+  } catch (error) {
+    return res.status(400).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };
 
-// GET ALL
+/* =========================
+   GET ALL PAYMENTS
+========================= */
 export const getAllPaymentsController = async (req: Request, res: Response) => {
   try {
-    const data = await getAllPaymentsService();
+    const payments = await getAllPaymentsService();
 
     return res.status(200).json({
       success: true,
-      data,
+      data: payments,
     });
-  } catch (error: any) {
+  } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };
 
-// GET BY ID
+/* =========================
+   GET PAYMENT BY ID
+========================= */
 export const getPaymentByIdController = async (req: Request, res: Response) => {
   try {
+    // Fix TypeScript error
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     if (!id) {
@@ -52,29 +62,30 @@ export const getPaymentByIdController = async (req: Request, res: Response) => {
       });
     }
 
-    const data = await getPaymentByIdService(id);
+    const payment = await getPaymentByIdService(id);
 
     return res.status(200).json({
       success: true,
-      data,
+      data: payment,
     });
-  } catch (error: any) {
+  } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };
 
-// UPDATE STATUS
+/* =========================
+   UPDATE PAYMENT STATUS
+========================= */
 export const updatePaymentStatusController = async (
   req: Request,
   res: Response,
 ) => {
   try {
+    // Fix TypeScript error
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-
-    const { status } = req.body;
 
     if (!id) {
       return res.status(400).json({
@@ -83,16 +94,19 @@ export const updatePaymentStatusController = async (
       });
     }
 
-    const data = await updatePaymentStatusService(id, status);
+    const status = req.body.status as PaymentStatus;
+
+    const payment = await updatePaymentStatusService(id, status);
 
     return res.status(200).json({
       success: true,
-      data,
+      message: "Payment status updated successfully",
+      data: payment,
     });
-  } catch (error: any) {
+  } catch (error) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Internal Server Error",
     });
   }
 };

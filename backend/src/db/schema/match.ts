@@ -11,7 +11,7 @@ export const matches = pgTable("matches", {
   fixtureId: text("fixture_id")
     .notNull()
     .unique()
-    .references(() => fixtures.id),
+    .references(() => fixtures.id, { onDelete: "cascade" }),
 
   homeScore: integer("home_score").default(0).notNull(),
 

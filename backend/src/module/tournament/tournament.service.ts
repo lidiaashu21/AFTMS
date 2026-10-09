@@ -81,5 +81,18 @@ export const updateTournamentService = async (
 
 // ✅ DELETE TOURNAMENT
 export const deleteTournamentService = async (id: string) => {
-  return await deleteTournamentFromDB(id);
+  try {
+    return await deleteTournamentFromDB(id);
+  } catch (error: any) {
+    // drizzle-orm wraps the real pg error in `error.cause`, so the code
+    // must be read from there (or top-level, if some other driver path).
+    const pgCode = error?.cause?.code ?? error?.code;
+
+    if (pgCode === "23503") {
+      throw new Error(
+        "This tournament still has fixtures, matches, or payments linked to it and cannot be deleted yet.",
+      );
+    }
+    throw error;
+  }
 };

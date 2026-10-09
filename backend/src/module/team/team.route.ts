@@ -1,5 +1,9 @@
 import { Router } from "express";
 
+import { authenticate } from "../../middleware/auth.middleware";
+import { validate } from "../../middleware/validation.middleware";
+import { createTeamSchema } from "./team.validation";
+
 import {
   createTeamController,
   getAllTeamsController,
@@ -8,7 +12,7 @@ import {
 
 const router = Router();
 
-router.post("/", createTeamController);
+router.post("/", authenticate, validate(createTeamSchema), createTeamController);
 
 router.get("/", getAllTeamsController);
 

@@ -1,14 +1,39 @@
 import { z } from "zod";
 
 /*
-  Your database currently contains:
-  - UUID ids from Drizzle
-  - CUID ids from old Prisma records
+==================================================
+ID VALIDATION
 
-  So we accept both.
+Supports:
+- Drizzle UUID ids
+- Old CUID ids
+
+Example:
+550e8400-e29b-41d4-a716-446655440000
+clx123abc456
+==================================================
 */
 
-const idSchema = z.string().min(1);
+const idSchema = z.string().min(1, "ID is required");
+
+/*
+==================================================
+DATE VALIDATION
+==================================================
+*/
+
+const dateSchema = z
+  .string()
+  .min(1, "Match date is required")
+  .refine((value) => !isNaN(Date.parse(value)), {
+    message: "Invalid match date",
+  });
+
+/*
+==================================================
+CREATE FIXTURE VALIDATION
+==================================================
+*/
 
 export const createFixtureSchema = z.object({
   body: z.object({
@@ -18,9 +43,15 @@ export const createFixtureSchema = z.object({
 
     awayTeamId: idSchema,
 
-    matchDate: z.string().min(1),
+    matchDate: dateSchema,
   }),
 });
+
+/*
+==================================================
+UPDATE FIXTURE VALIDATION
+==================================================
+*/
 
 export const updateFixtureSchema = z.object({
   body: z.object({
@@ -30,6 +61,6 @@ export const updateFixtureSchema = z.object({
 
     awayTeamId: idSchema.optional(),
 
-    matchDate: z.string().optional(),
+    matchDate: dateSchema.optional(),
   }),
 });

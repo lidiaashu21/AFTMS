@@ -16,7 +16,7 @@ export const payments = pgTable("payments", {
     .notNull(),
 
   tournamentId: text("tournament_id")
-    .references(() => tournaments.id)
+    .references(() => tournaments.id, { onDelete: "cascade" })
     .notNull(),
 
   amount: real("amount").notNull(),

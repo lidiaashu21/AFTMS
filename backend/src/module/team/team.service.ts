@@ -1,38 +1,41 @@
+// src/module/team/team.service.ts
+
 import {
   createTeamInDB,
   getAllTeamsFromDB,
   getTeamByIdFromDB,
+  getTeamByManagerIdFromDB,
 } from "./team.repository";
 
 import { CreateTeamInput } from "./team.types";
 
-// ✅ CREATE TEAM SERVICE
+/*
+=========================
+CREATE TEAM
+=========================
+*/
+
 export const createTeamService = async (data: CreateTeamInput) => {
-  const team = await createTeamInDB(data);
-
-  return {
-    id: team.id,
-    name: team.name,
-    coachName: team.coachName,
-    contactEmail: team.contactEmail,
-    createdAt: team.createdAt,
-  };
+  return await createTeamInDB(data);
 };
 
-// ✅ GET ALL TEAMS SERVICE
+/*
+=========================
+GET ALL TEAMS
+(ADMIN)
+=========================
+*/
+
 export const getAllTeamsService = async () => {
-  const teams = await getAllTeamsFromDB();
-
-  return teams.map((team) => ({
-    id: team.id,
-    name: team.name,
-    coachName: team.coachName,
-    contactEmail: team.contactEmail,
-    createdAt: team.createdAt,
-  }));
+  return await getAllTeamsFromDB();
 };
 
-// ✅ GET TEAM BY ID SERVICE
+/*
+=========================
+GET TEAM BY ID
+=========================
+*/
+
 export const getTeamByIdService = async (id: string) => {
   const team = await getTeamByIdFromDB(id);
 
@@ -40,11 +43,22 @@ export const getTeamByIdService = async (id: string) => {
     throw new Error("Team not found");
   }
 
-  return {
-    id: team.id,
-    name: team.name,
-    coachName: team.coachName,
-    contactEmail: team.contactEmail,
-    createdAt: team.createdAt,
-  };
+  return team;
+};
+
+/*
+=========================
+GET MY TEAM
+(TEAM MANAGER)
+=========================
+*/
+
+export const getMyTeamService = async (managerId: string) => {
+  const team = await getTeamByManagerIdFromDB(managerId);
+
+  if (!team) {
+    throw new Error("Team not found");
+  }
+
+  return team;
 };

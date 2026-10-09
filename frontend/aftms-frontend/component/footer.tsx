@@ -1,10 +1,7 @@
 "use client";
-
 import Link from "next/link";
 import Image from "next/image";
-
 import logo from "../public/image/logo.png";
-
 export default function Footer() {
   return (
     <footer className="bg-black text-slate-300">
@@ -96,8 +93,8 @@ export default function Footer() {
 
             <div className="mt-4 space-y-2 text-sm text-slate-400">
               <p>Addis Ababa, Ethiopia</p>
-              <p>support@aftms.com</p>
-              <p>+251 XXX XXX XXX</p>
+              <p>amanuelgetachew927@gmail.com</p>
+              <p>+251 963 175 963</p>
             </div>
           </div>
         </div>

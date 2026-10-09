@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { randomUUID } from "crypto";
+import { OAuth2Client } from "google-auth-library";
 import { env } from "../../config/env";
 import {
   findUserByEmail,
@@ -9,6 +11,13 @@ import {
   updateAdmin,
   deleteAdmin,
 } from "./auth.repository";
+
+const googleClient = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+
+const signToken = (user: { id: string; role: string }) =>
+  jwt.sign({ userId: user.id, role: user.role }, env.JWT_SECRET, {
+    expiresIn: env.JWT_EXPIRES_IN,
+  });
 
 /* ================= REGISTER ================= */
 export const registerService = async (data: any) => {
@@ -46,9 +55,42 @@ export const loginService = async (data: any) => {
   const isValid = await bcrypt.compare(data.password, user.password);
   if (!isValid) throw new Error("Invalid credentials");
 
-  const token = jwt.sign({ userId: user.id, role: user.role }, env.JWT_SECRET, {
-    expiresIn: env.JWT_EXPIRES_IN,
+  const token = signToken(user);
+
+  return { user, token };
+};
+
+/* ================= GOOGLE LOGIN ================= */
+export const googleLoginService = async (idToken: string) => {
+  if (!env.GOOGLE_CLIENT_ID) {
+    throw new Error("Google sign-in is not configured on the server.");
+  }
+
+  const ticket = await googleClient.verifyIdToken({
+    idToken,
+    audience: env.GOOGLE_CLIENT_ID,
   });
+
+  const payload = ticket.getPayload();
+  if (!payload?.email) {
+    throw new Error("Invalid Google token.");
+  }
+
+  const existingUser = await findUserByEmail(payload.email);
+
+  // Accounts created via Google don't have a password the user knows;
+  // store a random hash since the column is required, and the user
+  // will always authenticate via Google going forward.
+  const user =
+    existingUser ??
+    (await createUser({
+      name: payload.name || payload.email,
+      email: payload.email,
+      password: await bcrypt.hash(randomUUID(), 10),
+      role: "TEAM_MANAGER",
+    }));
+
+  const token = signToken(user);
 
   return { user, token };
 };

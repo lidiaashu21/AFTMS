@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-
+import LogoutButton from "../../component/Logout";
 import {
   LayoutDashboard,
   Trophy,
@@ -14,6 +14,7 @@ import {
   Shield,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 
 const menu = [
@@ -35,6 +36,11 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = "/";
+  };
 
   return (
     <div className="flex max-h-screen bg-white text-black">
@@ -91,6 +97,7 @@ export default function AdminLayout({
               </Link>
             );
           })}
+          <LogoutButton />
         </nav>
       </aside>
 

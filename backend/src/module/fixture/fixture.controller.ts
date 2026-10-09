@@ -19,14 +19,17 @@ export const createFixtureController = async (req: Request, res: Response) => {
 
     return res.status(201).json({
       success: true,
+
       data,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("CREATE FIXTURE ERROR:", error);
 
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
-      message: error.message || "Failed to create fixture",
+
+      message:
+        error instanceof Error ? error.message : "Failed to create fixture",
     });
   }
 };
@@ -41,14 +44,17 @@ export const getFixturesController = async (req: Request, res: Response) => {
   try {
     const data = await getFixturesService();
 
-    return res.json({
+    return res.status(200).json({
       success: true,
+
       data,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json({
       success: false,
-      message: error.message,
+
+      message:
+        error instanceof Error ? error.message : "Failed to fetch fixtures",
     });
   }
 };
@@ -66,22 +72,24 @@ export const updateFixtureController = async (req: Request, res: Response) => {
     if (!id) {
       return res.status(400).json({
         success: false,
+
         message: "Fixture id required",
       });
     }
 
     const data = await updateFixtureService(id, req.body);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
 
       data,
     });
-  } catch (error: any) {
-    return res.status(500).json({
+  } catch (error: unknown) {
+    return res.status(400).json({
       success: false,
 
-      message: error.message,
+      message:
+        error instanceof Error ? error.message : "Failed to update fixture",
     });
   }
 };
@@ -106,16 +114,17 @@ export const deleteFixtureController = async (req: Request, res: Response) => {
 
     await deleteFixtureService(id);
 
-    return res.json({
+    return res.status(200).json({
       success: true,
 
       message: "Fixture deleted successfully",
     });
-  } catch (error: any) {
-    return res.status(500).json({
+  } catch (error: unknown) {
+    return res.status(400).json({
       success: false,
 
-      message: error.message,
+      message:
+        error instanceof Error ? error.message : "Failed to delete fixture",
     });
   }
 };

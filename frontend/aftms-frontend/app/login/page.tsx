@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Lock, ArrowLeft, LogIn } from "lucide-react";
+import { Mail, Lock, ArrowLeft, LogIn, Eye, EyeOff } from "lucide-react";
 
 import api from "../../service/api";
+import { persistSession, dashboardPathForRole } from "../../lib/session";
 import b1 from "../../public/image/b1.jpg";
 
 export default function LoginPage() {
@@ -20,8 +21,8 @@ export default function LoginPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  // Clear fields whenever page loads/refreshed
   useEffect(() => {
     setForm({
       email: "",
@@ -41,6 +42,9 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // prevent double click
+    if (loading) return;
+
     try {
       setLoading(true);
       setError("");
@@ -52,27 +56,34 @@ export default function LoginPage() {
       const responseData = res.data?.data || res.data;
 
       const token = responseData?.token;
+
       const user = responseData?.user;
 
       if (!token || !user) {
         throw new Error("Invalid server response");
       }
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      // Persists to cookies (read by the proxy/middleware) and localStorage,
+      // with a long expiry so the user stays signed in until they log out.
+      persistSession(token, user);
 
-      document.cookie = `token=${token}; path=/; max-age=86400`;
-      document.cookie = `role=${user.role}; path=/; max-age=86400`;
+      // clear the inputs so credentials don't linger after login
+      setForm({ email: "", password: "" });
+      setShowPassword(false);
 
-      if (user.role === "ADMIN") {
-        router.push("/admin/dashboard");
-      } else if (user.role === "TEAM_MANAGER") {
-        router.push("/team-manager/dashboard");
-      } else {
-        setError("Unknown role: " + user.role);
-      }
+      const path = dashboardPathForRole(user.role);
+
+      // small delay to make sure cookie is saved
+      setTimeout(() => {
+        if (path) {
+          router.replace(path);
+        } else {
+          setError("Unknown role: " + user.role);
+        }
+      }, 100);
     } catch (err: any) {
       console.error("LOGIN ERROR:", err);
+
       setError(err.message || "Login failed");
     } finally {
       setLoading(false);
@@ -81,7 +92,6 @@ export default function LoginPage() {
 
   return (
     <main className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-6">
-      {/* Background */}
       <Image
         src={b1}
         alt="Football Background"
@@ -90,25 +100,29 @@ export default function LoginPage() {
         className="object-cover"
       />
 
-      {/* Overlay */}
       <div className="absolute inset-0 bg-black/20" />
 
-      {/* Card */}
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        initial={{
+          opacity: 0,
+          y: 30,
+        }}
+        animate={{
+          opacity: 1,
+          y: 0,
+        }}
+        transition={{
+          duration: 0.5,
+        }}
         className="relative z-10 w-full max-w-[380px] rounded-2xl border border-white/20 bg-white/10 p-5 backdrop-blur-xl"
       >
-        {/* Back */}
         <Link
           href="/"
-          className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white transition hover:bg-white/20"
+          className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-white"
         >
           <ArrowLeft size={16} />
         </Link>
 
-        {/* Header */}
         <div className="mt-6 text-center">
           <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-red-500/20">
             <LogIn className="h-5 w-5 text-red-300" />
@@ -119,16 +133,13 @@ export default function LoginPage() {
           <p className="mt-1 text-xs text-gray-300">Login to your account</p>
         </div>
 
-        {/* Error */}
         {error && (
           <div className="mt-4 rounded-lg bg-red-500/20 p-3 text-xs text-red-200">
             {error}
           </div>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="mt-6 space-y-5">
-          {/* Email */}
           <div className="flex items-center rounded-lg border border-white/20 bg-white/10 px-3">
             <Mail size={16} className="text-gray-300" />
 
@@ -139,44 +150,54 @@ export default function LoginPage() {
               value={form.email}
               onChange={handleChange}
               required
-              autoComplete="off"
-              className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-gray-400"
+              className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none"
             />
           </div>
 
-          {/* Password */}
           <div className="flex items-center rounded-lg border border-white/20 bg-white/10 px-3">
-            <Lock size={16} className="text-gray-300" />
+            <Lock size={16} className="shrink-0 text-gray-300" />
 
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
               required
-              autoComplete="new-password"
-              className="w-full bg-transparent px-3 py-3 text-sm text-white outline-none placeholder:text-gray-400"
+              className="w-full min-w-0 bg-transparent px-3 py-3 text-sm text-white outline-none"
             />
+
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="shrink-0 rounded-md p-1 text-gray-300 transition hover:text-white"
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
 
-          {/* Button */}
+          <div className="text-right">
+            <Link
+              href="/forgot-password"
+              className="text-xs font-medium text-red-300 hover:text-red-200"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-red-700 py-3 text-sm font-semibold text-white transition hover:bg-red-800 disabled:opacity-60"
+            className="w-full rounded-lg bg-red-700 py-3 text-sm font-semibold text-white hover:bg-red-800 disabled:opacity-60"
           >
             {loading ? "Logging In..." : "Login"}
           </button>
         </form>
 
-        {/* Register */}
         <div className="mt-5 text-center text-xs text-gray-300">
-          Don't have an account?{" "}
-          <Link
-            href="/register"
-            className="font-medium text-red-300 hover:text-red-200"
-          >
+          Donot have an account?{" "}
+          <Link href="/register" className="font-medium text-red-300">
             Register
           </Link>
         </div>

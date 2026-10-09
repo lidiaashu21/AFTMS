@@ -58,11 +58,14 @@ export default function TournamentDetailsPage() {
           throw new Error("Tournament ID is missing");
         }
 
-        const res = await fetch(`http://localhost:5000/api/tournaments/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
+        const res = await fetch(
+          `http://localhost:5000/api/tournaments/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         const data = await res.json().catch(() => null);
 

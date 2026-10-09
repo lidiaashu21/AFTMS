@@ -69,7 +69,7 @@ export default function AdminFixturesPage() {
   }, []);
 
   // ================= CREATE =================
-  // ================= CREATE =================
+
   const createFixture = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/fixtures", {
@@ -104,10 +104,13 @@ export default function AdminFixturesPage() {
   const deleteFixture = async (id: string) => {
     if (!confirm("Delete this fixture?")) return;
 
-    const res = await fetch(`http://localhost:5000/api/fixtures/${id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token || ""}` },
-    });
+    const res = await fetch(
+      `http://localhost:5000/api/fixtures/${id}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token || ""}` },
+      },
+    );
 
     if (!res.ok) return alert("Delete failed");
 
@@ -130,14 +133,17 @@ export default function AdminFixturesPage() {
   const updateFixture = async () => {
     if (!editingId) return;
 
-    const res = await fetch(`http://localhost:5000/api/fixtures/${editingId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token || ""}`,
+    const res = await fetch(
+      `http://localhost:5000/api/fixtures/${editingId}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token || ""}`,
+        },
+        body: JSON.stringify(form),
       },
-      body: JSON.stringify(form),
-    });
+    );
 
     const json = await res.json();
 
@@ -175,24 +181,63 @@ export default function AdminFixturesPage() {
         {/* FORM */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 mb-4 space-y-2">
           <select
-            className="w-full border rounded-lg p-2 text-sm"
+            className="
+    w-full
+    min-w-0
+    h-10
+    sm:h-11
+    border
+    rounded-lg
+    px-2
+    sm:px-3
+    py-2
+    text-base
+    sm:text-sm
+    truncate
+    bg-white
+    text-gray-900
+    box-border
+    focus:outline-none
+    focus:ring-2
+    focus:ring-gray-300
+  "
             value={form.tournamentId}
             onChange={(e) => setForm({ ...form, tournamentId: e.target.value })}
           >
             <option value="">Tournament</option>
+
             {tournaments.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
               </option>
             ))}
           </select>
-
           <select
-            className="w-full border rounded-lg p-2 text-sm"
+            className="
+    w-full
+    min-w-0
+    h-10
+    sm:h-11
+    border
+    rounded-lg
+    px-2
+    sm:px-3
+    py-2
+    text-base
+    sm:text-sm
+    truncate
+    bg-white
+    text-gray-900
+    box-border
+    focus:outline-none
+    focus:ring-2
+    focus:ring-gray-300
+  "
             value={form.homeTeamId}
             onChange={(e) => setForm({ ...form, homeTeamId: e.target.value })}
           >
             <option value="">Home Team</option>
+
             {teams.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -201,11 +246,31 @@ export default function AdminFixturesPage() {
           </select>
 
           <select
-            className="w-full border rounded-lg p-2 text-sm"
+            className="
+    w-full
+    min-w-0
+    h-10
+    sm:h-11
+    border
+    rounded-lg
+    px-2
+    sm:px-3
+    py-2
+    text-base
+    sm:text-sm
+    truncate
+    bg-white
+    text-gray-900
+    box-border
+    focus:outline-none
+    focus:ring-2
+    focus:ring-gray-300
+  "
             value={form.awayTeamId}
             onChange={(e) => setForm({ ...form, awayTeamId: e.target.value })}
           >
             <option value="">Away Team</option>
+
             {teams.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name}
@@ -225,14 +290,14 @@ export default function AdminFixturesPage() {
             {editingId ? (
               <button
                 onClick={updateFixture}
-                className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg text-sm"
+                className="w-full sm:w-auto bg-gradient-to-r from-red-950 via-red-900 to-black text-white px-4 py-2 rounded-lg text-sm"
               >
                 Update
               </button>
             ) : (
               <button
                 onClick={createFixture}
-                className="w-full sm:w-auto bg-black text-white px-4 py-2 rounded-lg text-sm"
+                className="w-full sm:w-auto bg-gradient-to-r from-red-950 via-red-900 to-black text-white px-4 py-2 rounded-lg text-sm"
               >
                 Create
               </button>
@@ -255,7 +320,7 @@ export default function AdminFixturesPage() {
 
         {/* LIST */}
         {loading ? (
-          <p className="text-xs text-gray-500">Loading...</p>
+          <p className="text-xs text-gray-900">Loading...</p>
         ) : (
           <div className="space-y-2">
             {fixtures.map((f) => (
@@ -283,7 +348,7 @@ export default function AdminFixturesPage() {
 
                   <button
                     onClick={() => deleteFixture(f.id)}
-                    className="px-3 py-1 text-xs bg-red-600 text-white rounded-lg"
+                    className="px-3 py-1 text-xs bg-red-800 text-white rounded-lg"
                   >
                     Delete
                   </button>

@@ -8,6 +8,7 @@ const router = (0, express_1.Router)();
 /* AUTH */
 router.post("/register", auth_controller_1.registerController);
 router.post("/login", auth_controller_1.loginController);
+router.post("/google", auth_controller_1.googleLoginController);
 /* ADMIN CREATE */
 router.post("/create-admin", auth_middleware_1.authenticate, (0, autherize_1.authorize)("ADMIN"), auth_controller_1.createAdminController);
 /* ADMIN CRUD */

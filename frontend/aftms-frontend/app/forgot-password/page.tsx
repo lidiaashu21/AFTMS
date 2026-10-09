@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft } from "lucide-react";
 
+import api from "../../service/api";
 import b1 from "../../public/image/b1.jpg";
 
 export default function ForgotPasswordPage() {
@@ -20,7 +21,7 @@ export default function ForgotPasswordPage() {
       setLoading(true);
 
       // Example API call
-      // await api.post("/auth/forgot-password", { email });
+      await api.post("/auth/forgot-password", { email });
 
       setSuccess(
         "If an account exists with this email, a password reset link has been sent.",

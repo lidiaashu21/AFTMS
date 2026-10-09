@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd ../../backend 2>/dev/null && pwd && find . -path ./node_modules -prune -o -iname \"*auth*\" -print 2>/dev/null | grep -v node_modules)",
+      "Read(//c/Users/MesfinWossen/Desktop/Addis_Football_Tournament/backend/**)",
+      "Read(//c/Users/MesfinWossen/Desktop/Addis_Football_Tournament/backend/src/module/auth/**)",
+      "Read(//c/Users/MesfinWossen/Desktop/Addis_Football_Tournament/backend/src/config/**)",
+      "Read(//c/Users/MesfinWossen/Desktop/Addis_Football_Tournament/backend/src/middleware/**)",
+      "Read(//c/Users/MesfinWossen/Desktop/Addis_Football_Tournament/backend/src/app/**)",
+      "Bash(cat \"c:\\\\Users\\\\MesfinWossen\\\\Desktop\\\\Addis_Football_Tournament\\\\backend\\\\package.json\" | grep -iE \"passport|google|jsonwebtoken|bcrypt|dotenv\")",
+      "Read(//c/Users/MesfinWossen/Desktop/Addis_Football_Tournament/backend/src/db/schema/**)",
+      "Bash(echo \"exit: $?\")",
+      "Read(//c/Users/MesfinWossen/Desktop/Addis_Football_Tournament/backend/src/db/**)",
+      "Bash(cat \"c:\\\\Users\\\\MesfinWossen\\\\Desktop\\\\Addis_Football_Tournament\\\\backend\\\\package.json\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\MesfinWossen\\Desktop\\Addis_Football_Tournament\\backend"
+    ]
+  }
+}

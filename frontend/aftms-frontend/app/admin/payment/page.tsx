@@ -67,13 +67,6 @@ export default function PaymentsPage() {
 
     run();
   }, []);
-
-  // =========================
-  // UPDATE PAYMENT STATUS (FIXED)
-  // =========================
-  // =========================
-  // UPDATE PAYMENT STATUS
-  // =========================
   const updatePaymentStatus = async (id: string, status: PaymentStatus) => {
     try {
       const token = localStorage.getItem("token");
@@ -98,35 +91,27 @@ export default function PaymentsPage() {
         },
       );
 
-      const data = await res.json().catch(() => null);
-
-      console.log("UPDATE PAYMENT RESPONSE:", data);
+      const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data?.message || "Update failed");
+        throw new Error(data?.message || "Failed to update payment");
       }
 
-      // =========================
-      // UPDATE UI
-      // =========================
+      /*
+      Reload payments from database
 
-      setPayments((prev) =>
-        prev.map((payment) =>
-          payment.id === id
-            ? {
-                ...payment,
-                status: status,
-              }
-            : payment,
-        ),
-      );
-    } catch (err) {
-      console.error("PAYMENT UPDATE ERROR:", err);
+      Why?
+      Because approval changes database state.
+      The fixture system reads from database.
+    */
 
-      alert(err instanceof Error ? err.message : "Something went wrong");
+      await fetchPayments(token);
+    } catch (error) {
+      console.error("UPDATE PAYMENT ERROR:", error);
+
+      alert(error instanceof Error ? error.message : "Something went wrong");
     }
   };
-
   // =========================
   // STATUS COLORS
   // =========================

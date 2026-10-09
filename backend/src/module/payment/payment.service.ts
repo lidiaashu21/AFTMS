@@ -5,26 +5,50 @@ import {
   updatePaymentStatusInDB,
 } from "./payment.repository";
 
-export const createPaymentService = (data: any) => {
-  return createPaymentInDB(data);
-};
+import { getTeamByIdFromDB } from "../team/team.repository";
+import { getTournamentByIdFromDB } from "../tournament/tournament.repository";
 
-export const getAllPaymentsService = () => {
-  return getAllPaymentsFromDB();
-};
+import { CreatePaymentInput, PaymentStatus } from "./payment.types";
 
-export const getPaymentByIdService = (id: string) => {
-  return getPaymentByIdFromDB(id);
-};
+export const createPaymentService = async (data: CreatePaymentInput) => {
+  const team = await getTeamByIdFromDB(data.teamId);
 
-export const updatePaymentStatusService = (
-  id: string,
-
-  status: "PENDING" | "APPROVED" | "REJECTED",
-) => {
-  if (!["PENDING", "APPROVED", "REJECTED"].includes(status)) {
-    throw new Error("Invalid payment status");
+  if (!team) {
+    throw new Error("Team not found");
   }
 
-  return updatePaymentStatusInDB(id, status);
+  const tournament = await getTournamentByIdFromDB(data.tournamentId);
+
+  if (!tournament) {
+    throw new Error("Tournament not found");
+  }
+
+  return await createPaymentInDB(data);
+};
+
+export const getAllPaymentsService = async () => {
+  return await getAllPaymentsFromDB();
+};
+
+export const getPaymentByIdService = async (id: string) => {
+  const payment = await getPaymentByIdFromDB(id);
+
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+
+  return payment;
+};
+
+export const updatePaymentStatusService = async (
+  id: string,
+  status: PaymentStatus,
+) => {
+  const payment = await getPaymentByIdFromDB(id);
+
+  if (!payment) {
+    throw new Error("Payment not found");
+  }
+
+  return await updatePaymentStatusInDB(id, status);
 };

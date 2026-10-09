@@ -2,9 +2,11 @@ import db from "../../config/drizzle";
 
 import { teams } from "../../db/schema/team";
 import { payments } from "../../db/schema/payment";
-import { tournaments } from "../../db/schema/tournament";
 
-export const registerTeamWithPayment = async (data: any) => {
+import { getTournamentByIdFromDB } from "../tournament/tournament.repository";
+import { countRegisteredTeamsForTournament } from "../payment/payment.repository";
+
+export const registerTeamWithPayment = async (data: any, managerId: string) => {
   const {
     teamName,
     coachName,
@@ -14,12 +16,12 @@ export const registerTeamWithPayment = async (data: any) => {
     transactionNumber,
   } = data;
 
-  // 🔥 DEBUG
-  console.log("SERVICE DATA:", data);
-
-  // ❌ VALIDATION
   if (!teamName || !coachName || !coachEmail) {
     throw new Error("Team data missing");
+  }
+
+  if (!tournamentId) {
+    throw new Error("Tournament is required");
   }
 
   if (!amount || !transactionNumber) {
@@ -33,6 +35,23 @@ export const registerTeamWithPayment = async (data: any) => {
   }
 
   // =========================
+  // 0. ENFORCE TOURNAMENT TEAM LIMIT
+  // =========================
+  const tournament = await getTournamentByIdFromDB(tournamentId);
+
+  if (!tournament) {
+    throw new Error("Tournament not found");
+  }
+
+  const registeredCount = await countRegisteredTeamsForTournament(tournamentId);
+
+  if (registeredCount >= tournament.maxTeams) {
+    throw new Error(
+      `Registration closed: this tournament has reached its maximum of ${tournament.maxTeams} teams.`,
+    );
+  }
+
+  // =========================
   // 1. CREATE TEAM
   // =========================
   const teamResult = await db
@@ -41,6 +60,7 @@ export const registerTeamWithPayment = async (data: any) => {
       name: teamName,
       coachName,
       contactEmail: coachEmail,
+      managerId,
     })
     .returning();
 
@@ -53,21 +73,13 @@ export const registerTeamWithPayment = async (data: any) => {
     .insert(payments)
     .values({
       teamId: team.id,
-      tournamentId: tournamentId || "DEFAULT_ID",
+      tournamentId,
       amount: numericAmount,
       transactionNumber,
     })
     .returning();
 
   const payment = paymentResult[0];
-
-  // =========================
-  // 3. DEBUG: GET ALL TOURNAMENTS
-  // =========================
-  const allTournaments = await db.select().from(tournaments);
-
-  console.log("ALL TOURNAMENTS:");
-  console.log(allTournaments);
 
   return { team, payment };
 };

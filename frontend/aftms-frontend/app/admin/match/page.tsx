@@ -1,388 +1,260 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trophy } from "lucide-react";
-import { motion } from "framer-motion";
+
+type MatchStatus = "UPCOMING" | "ONGOING" | "COMPLETED";
 
 interface Match {
   id: string;
-
-  fixtureId: string;
-
   homeTeam: string;
-
   awayTeam: string;
-
   homeScore: number;
-
   awayScore: number;
-
-  status: "UPCOMING" | "ONGOING" | "COMPLETED";
-
-  createdAt?: string;
+  status: MatchStatus;
 }
 
 const API_URL = "http://localhost:5000/api/matches";
 
+/**
+ * SAFE JSON PARSER (fixes "<!DOCTYPE html>" crash)
+ */
 const safeJson = async (res: Response) => {
   const text = await res.text();
 
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error("Server did not return JSON");
+    throw new Error("Server did not return JSON. Check backend API route.");
   }
 };
 
-export default function ResultsPage() {
+export default function MatchesPage() {
   const [matches, setMatches] = useState<Match[]>([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
 
+  /**
+   * GET TOKEN
+   */
   const getToken = () =>
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-  const fetchMatches = async () => {
+  /**
+   * FETCH MATCHES
+   */
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchMatches = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const token = getToken();
+
+        if (!token) {
+          throw new Error("No token found. Please login again.");
+        }
+
+        const res = await fetch(API_URL, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const result = await safeJson(res);
+
+        if (!res.ok) {
+          throw new Error(result?.message || "Failed to fetch matches");
+        }
+
+        // SAFE mapping (prevents undefined crash)
+        const formatted: Match[] = (result.data || []).map((m: any) => ({
+          id: m.id,
+          homeTeam: m.homeTeam || "Unknown",
+          awayTeam: m.awayTeam || "Unknown",
+          homeScore: m.homeScore,
+          awayScore: m.awayScore,
+          status: m.status,
+        }));
+
+        if (isMounted) setMatches(formatted);
+      } catch (err: any) {
+        if (isMounted) setError(err.message || "Something went wrong");
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    fetchMatches();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  /**
+   * UPDATE MATCH
+   */
+  const updateMatch = async (
+    id: string,
+    homeScore: number,
+    awayScore: number,
+    status: MatchStatus,
+  ) => {
     try {
-      setLoading(true);
-
-      setError("");
-
       const token = getToken();
 
-      const res = await fetch(API_URL, {
-        method: "GET",
+      if (!token) throw new Error("No token found");
 
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PATCH",
         headers: {
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({
+          homeScore,
+          awayScore,
+          status,
+        }),
       });
 
       const result = await safeJson(res);
 
-      console.log("API RESPONSE:", result);
-
       if (!res.ok) {
-        throw new Error(result?.message || "Failed to fetch matches");
+        throw new Error(result?.message || "Update failed");
       }
 
-      /*
-        BACKEND RESPONSE:
-
-        {
-          success:true,
-          data:[
-            {
-              id,
-              fixtureId,
-              homeTeam,
-              awayTeam,
-              homeScore,
-              awayScore,
-              status
-            }
-          ]
-        }
-
-      */
-
-      const formatted: Match[] = (
-        Array.isArray(result.data) ? result.data : []
-      ).map((match: any) => ({
-        id: String(match.id),
-
-        fixtureId: match.fixtureId || "Unknown Fixture",
-
-        homeTeam: match.homeTeam || "Unknown Home Team",
-
-        awayTeam: match.awayTeam || "Unknown Away Team",
-
-        homeScore: Number(match.homeScore ?? 0),
-
-        awayScore: Number(match.awayScore ?? 0),
-
-        status: match.status || "UPCOMING",
-
-        createdAt: match.createdAt || "",
-      }));
-
-      console.log("DISPLAY MATCHES:", formatted);
-
-      setMatches(formatted);
+      // optimistic UI update
+      setMatches((prev) =>
+        prev.map((m) =>
+          m.id === id ? { ...m, homeScore, awayScore, status } : m,
+        ),
+      );
     } catch (err: any) {
-      console.error("FETCH ERROR:", err);
-
-      setError(err.message || "Failed to load matches");
-    } finally {
-      setLoading(false);
+      alert(err.message || "Something went wrong");
     }
   };
 
-  useEffect(() => {
-    fetchMatches();
-
-    const timer = setInterval(fetchMatches, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   return (
-    <main
-      className="
-      relative
-      min-h-screen
-      text-white
-      "
-    >
-      {/* BACKGROUND */}
-
-      <div
-        className="
-        fixed
-        inset-0
-        -z-10
-        "
-      >
-        <img
-          src="/image/t6.png"
-          alt="background"
-          className="
-          w-full
-          h-full
-          object-cover
-          "
-        />
-
-        <div
-          className="
-          absolute
-          inset-0
-          bg-black/70
-          backdrop-blur-sm
-          "
-        />
-      </div>
-
+    <main className="min-h-screen bg-slate-50">
       {/* HEADER */}
-
-      <section
-        className="
-        py-6
-        text-center
-        "
-      >
-        <motion.h1
-          initial={{
-            opacity: 0,
-            y: -20,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          className="
-          text-2xl
-          md:text-3xl
-          font-bold
-          "
-        >
-          🏆 Match Results
-        </motion.h1>
-
-        <p
-          className="
-          text-gray-300
-          mt-2
-          "
-        >
-          Football fixture results
+      <section className="py-8 text-center">
+        <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">
+          Match Management
+        </h1>
+        <p className="mx-auto mt-1 max-w-xl text-xs text-gray-700 sm:text-sm">
+          Manage live matches, scores, and results
         </p>
       </section>
 
-      <section
-        className="
-        max-w-5xl
-        mx-auto
-        px-4
-        pb-10
-        "
-      >
-        {loading ? (
-          <p className="text-center">Loading matches...</p>
-        ) : error ? (
-          <div
-            className="
-            bg-red-500/20
-            rounded-xl
-            p-5
-            text-center
-            "
-          >
+      {/* ERROR */}
+      {error && (
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="bg-red-100 text-red-700 p-3 rounded text-sm">
             {error}
           </div>
-        ) : matches.length === 0 ? (
-          <div
-            className="
-            bg-white/10
-            rounded-xl
-            p-10
-            text-center
-            "
-          >
-            <Trophy
-              className="
-              mx-auto
-              text-yellow-400
-              mb-3
-              "
-            />
-            No matches found
-          </div>
-        ) : (
-          <div
-            className="
-            grid
-            grid-cols-1
-            md:grid-cols-2
-            gap-5
-            "
-          >
-            {matches.map((match, index) => (
-              <motion.div
+        </div>
+      )}
+
+      {/* LOADING */}
+      {loading ? (
+        <p className="text-center text-gray-600">Loading matches...</p>
+      ) : (
+        <section className="max-w-6xl mx-auto px-4 space-y-4 pb-10">
+          {matches.length === 0 ? (
+            <div className="text-center bg-white p-10 rounded shadow">
+              No matches found
+            </div>
+          ) : (
+            matches.map((match) => (
+              <div
                 key={match.id}
-                initial={{
-                  opacity: 0,
-                  y: 20,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: index * 0.05,
-                }}
-                className="
-                bg-white/10
-                border
-                border-white/10
-                rounded-xl
-                p-5
-                backdrop-blur-md
-                "
+                className="bg-white p-5 rounded-xl shadow flex flex-col lg:flex-row items-center justify-between gap-4"
               >
-                <div
-                  className="
-                  flex
-                  items-center
-                  gap-2
-                  text-yellow-300
-                  mb-4
-                  "
-                >
-                  <Trophy size={16} />
-                  Fixture
+                {/* TEAMS */}
+                <div className="font-bold text-lg">
+                  {match.homeTeam} <span className="text-gray-400">vs</span>{" "}
+                  {match.awayTeam}
                 </div>
 
-                <div
-                  className="
-                  bg-black/20
-                  rounded-lg
-                  p-3
-                  mb-5
-                  text-center
-                  "
-                >
-                  <p
-                    className="
-                    text-xs
-                    text-gray-300
-                    "
-                  >
-                    Fixture ID
-                  </p>
+                {/* SCORE */}
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    value={match.homeScore}
+                    onChange={(e) =>
+                      setMatches((prev) =>
+                        prev.map((m) =>
+                          m.id === match.id
+                            ? { ...m, homeScore: Number(e.target.value) }
+                            : m,
+                        ),
+                      )
+                    }
+                    className="w-16 md:w-24 border rounded text-center"
+                  />
 
-                  <p className="break-all">{match.fixtureId}</p>
+                  <span>-</span>
+
+                  <input
+                    type="number"
+                    value={match.awayScore}
+                    onChange={(e) =>
+                      setMatches((prev) =>
+                        prev.map((m) =>
+                          m.id === match.id
+                            ? { ...m, awayScore: Number(e.target.value) }
+                            : m,
+                        ),
+                      )
+                    }
+                    className="w-16 md:w-24 border rounded text-center"
+                  />
                 </div>
 
-                <div
-                  className="
-                  flex
-                  justify-between
-                  items-center
-                  text-center
-                  "
+                {/* STATUS */}
+                <select
+                  value={match.status}
+                  onChange={(e) =>
+                    setMatches((prev) =>
+                      prev.map((m) =>
+                        m.id === match.id
+                          ? {
+                              ...m,
+                              status: e.target.value as MatchStatus,
+                            }
+                          : m,
+                      ),
+                    )
+                  }
+                  className="border rounded px-2 py-1"
                 >
-                  <div>
-                    <p
-                      className="
-                      text-xs
-                      text-gray-300
-                      "
-                    >
-                      Home Team
-                    </p>
+                  <option value="UPCOMING">UPCOMING</option>
+                  <option value="ONGOING">ONGOING</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                </select>
 
-                    <h2 className="font-bold text-lg">{match.homeTeam}</h2>
-                  </div>
-
-                  <div
-                    className="
-                    text-3xl
-                    font-bold
-                    text-green-400
-                    "
-                  >
-                    {match.homeScore}-{match.awayScore}
-                  </div>
-
-                  <div>
-                    <p
-                      className="
-                      text-xs
-                      text-gray-300
-                      "
-                    >
-                      Away Team
-                    </p>
-
-                    <h2 className="font-bold text-lg">{match.awayTeam}</h2>
-                  </div>
-                </div>
-
-                <div
-                  className="
-                  mt-5
-                  bg-white/10
-                  rounded-lg
-                  p-3
-                  text-center
-                  "
+                {/* SAVE */}
+                <button
+                  onClick={() =>
+                    updateMatch(
+                      match.id,
+                      match.homeScore,
+                      match.awayScore,
+                      match.status,
+                    )
+                  }
+                  className="bg-gradient-to-r from-red-950 via-red-900 to-black text-white px-4 py-2 rounded hover:bg-gray-800"
                 >
-                  <p
-                    className="
-                    text-xs
-                    text-gray-300
-                    "
-                  >
-                    Status
-                  </p>
-
-                  <p
-                    className="
-                    font-semibold
-                    text-green-300
-                    "
-                  >
-                    {match.status}
-                  </p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
-      </section>
+                  Save
+                </button>
+              </div>
+            ))
+          )}
+        </section>
+      )}
     </main>
   );
 }

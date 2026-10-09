@@ -1,5 +1,8 @@
 import { Router } from "express";
+
 import { validate } from "../../middleware/validation.middleware";
+import { authenticate } from "../../middleware/auth.middleware";
+import { authorize } from "../../middleware/autherize";
 
 import {
   createPaymentSchema,
@@ -21,9 +24,10 @@ router.get("/", getAllPaymentsController);
 
 router.get("/:id", getPaymentByIdController);
 
-// ✅ FIXED ROUTE (THIS IS WHAT FRONTEND MUST CALL)
 router.patch(
   "/:id/status",
+  authenticate,
+  authorize("ADMIN"),
   validate(updatePaymentStatusSchema),
   updatePaymentStatusController,
 );

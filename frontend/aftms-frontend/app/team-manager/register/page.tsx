@@ -28,7 +28,9 @@ export default function TeamRegisterPaymentPage() {
   useEffect(() => {
     const fetchTournaments = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/tournaments");
+        const res = await fetch(
+          "http://localhost:5000/api/tournaments",
+        );
         const json = await res.json();
         setTournaments(json?.data || []);
       } catch (err) {
@@ -103,17 +105,42 @@ export default function TeamRegisterPaymentPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-slate-50 pt-28 sm:pt-24">
       {/* HEADER (ADMIN STYLE) */}
       <section className="relative overflow-hidden py-8 sm:py-10">
-        <div className="relative z-10 mx-auto max-w-3xl px-4 text-center text-black">
-          <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">
-            Team Registration
-          </h1>
+        <div className="relative z-10 mx-auto max-w-6xl px-4 text-black">
+          <div className="text-center">
+            <h1 className="text-xl font-bold sm:text-2xl md:text-3xl">
+              Team Registration
+            </h1>
 
-          <p className="mx-auto mt-3 max-w-xl text-xs sm:text-sm text-gray-600">
-            Register your team and submit payment details
-          </p>
+            <p className="mx-auto mt-3 max-w-xl text-xs text-gray-600 sm:text-sm">
+              Register your team and submit payment details
+            </p>
+          </div>
+
+          {/* PAYMENT METHOD CARD */}
+          <div className="mt-6 flex justify-end">
+            <div className="w-full max-w-xs rounded-xl border border-gray-200 bg-white p-4 shadow-xs">
+              <h2 className="mb-3 text-base font-bold text-red-900">
+                Payment Method
+              </h2>
+
+              <div className="space-y-2 text-sm text-gray-700">
+                <p>
+                  <span className="font-semibold">Telebirr:</span> 0963175963
+                </p>
+
+                <p>
+                  <span className="font-semibold">CBE:</span> 1000465969753
+                </p>
+
+                <p className="border-t pt-2 font-semibold text-black">
+                  Amanuel Getachew
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -202,14 +229,6 @@ export default function TeamRegisterPaymentPage() {
               value={form.amount}
               onChange={handleChange}
               className="w-full rounded-lg border bg-gray-50 p-3 text-sm outline-none focus:border-red-900"
-              required
-            />
-
-            {/* FILE */}
-            <input
-              type="file"
-              onChange={(e) => setReceipt(e.target.files?.[0] || null)}
-              className="w-full rounded-lg border bg-gray-50 p-3 text-sm"
               required
             />
 

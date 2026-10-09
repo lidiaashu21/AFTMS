@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   registerService,
   loginService,
+  googleLoginService,
   createAdminService,
   getAllAdminsService,
   getAdminByIdService,
@@ -47,6 +48,32 @@ export const createAdminController = async (req: Request, res: Response) => {
 export const loginController = async (req: Request, res: Response) => {
   try {
     const result = await loginService(req.body);
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (err: any) {
+    return res.status(401).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+/* GOOGLE LOGIN */
+export const googleLoginController = async (req: Request, res: Response) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: "idToken is required.",
+      });
+    }
+
+    const result = await googleLoginService(idToken);
 
     return res.status(200).json({
       success: true,

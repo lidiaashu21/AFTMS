@@ -2,11 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const validation_middleware_1 = require("../../middleware/validation.middleware");
+const auth_middleware_1 = require("../../middleware/auth.middleware");
+const autherize_1 = require("../../middleware/autherize");
 const fixture_validation_1 = require("./fixture.validation");
 const fixture_controller_1 = require("./fixture.controller");
 const router = (0, express_1.Router)();
-router.post("/", (0, validation_middleware_1.validate)(fixture_validation_1.createFixtureSchema), fixture_controller_1.createFixtureController);
 router.get("/", fixture_controller_1.getFixturesController);
-router.patch("/:id", fixture_controller_1.updateFixtureController);
-router.delete("/:id", fixture_controller_1.deleteFixtureController);
+router.post("/", auth_middleware_1.authenticate, (0, autherize_1.authorize)("ADMIN"), (0, validation_middleware_1.validate)(fixture_validation_1.createFixtureSchema), fixture_controller_1.createFixtureController);
+router.patch("/:id", auth_middleware_1.authenticate, (0, autherize_1.authorize)("ADMIN"), (0, validation_middleware_1.validate)(fixture_validation_1.updateFixtureSchema), fixture_controller_1.updateFixtureController);
+router.delete("/:id", auth_middleware_1.authenticate, (0, autherize_1.authorize)("ADMIN"), fixture_controller_1.deleteFixtureController);
 exports.default = router;

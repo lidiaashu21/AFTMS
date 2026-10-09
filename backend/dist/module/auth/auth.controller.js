@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteAdminController = exports.updateAdminController = exports.getAdminByIdController = exports.getAllAdminsController = exports.loginController = exports.createAdminController = exports.registerController = void 0;
+exports.deleteAdminController = exports.updateAdminController = exports.getAdminByIdController = exports.getAllAdminsController = exports.googleLoginController = exports.loginController = exports.createAdminController = exports.registerController = void 0;
 const auth_service_1 = require("./auth.service");
 /* REGISTER */
 const registerController = async (req, res) => {
@@ -53,6 +53,30 @@ const loginController = async (req, res) => {
     }
 };
 exports.loginController = loginController;
+/* GOOGLE LOGIN */
+const googleLoginController = async (req, res) => {
+    try {
+        const { idToken } = req.body;
+        if (!idToken) {
+            return res.status(400).json({
+                success: false,
+                message: "idToken is required.",
+            });
+        }
+        const result = await (0, auth_service_1.googleLoginService)(idToken);
+        return res.status(200).json({
+            success: true,
+            data: result,
+        });
+    }
+    catch (err) {
+        return res.status(401).json({
+            success: false,
+            message: err.message,
+        });
+    }
+};
+exports.googleLoginController = googleLoginController;
 /* GET ALL ADMINS */
 const getAllAdminsController = async (req, res) => {
     try {

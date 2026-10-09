@@ -3,34 +3,7 @@
 import { useEffect, useState } from "react";
 import { CalendarDays, MapPin, Trophy } from "lucide-react";
 import { motion } from "framer-motion";
-import { getFixtures } from "../../service/fixture.service";
-
-/**
- * FIXED TYPES (match backend Prisma include)
- */
-interface Team {
-  id: string;
-  name: string;
-  coachName?: string;
-  contactEmail?: string;
-  createdAt?: string;
-}
-
-interface Tournament {
-  id: string;
-  name: string;
-  location?: string;
-}
-
-interface Fixture {
-  id: string;
-  fixtureDate: string;
-  status?: string;
-
-  homeTeam: Team;
-  awayTeam: Team;
-  tournament?: Tournament;
-}
+import { getFixtures, type Fixture } from "../../service/fixture.service";
 
 export default function FixturesPage() {
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
@@ -46,11 +19,7 @@ export default function FixturesPage() {
 
         console.log("API RESPONSE:", res);
 
-        const data = Array.isArray(res?.data)
-          ? res.data
-          : Array.isArray(res)
-            ? res
-            : [];
+        const data = Array.isArray(res) ? res : [];
 
         setFixtures(data);
       } catch (err) {
@@ -105,7 +74,7 @@ export default function FixturesPage() {
         {loading ? (
           <p className="text-center text-gray-300">Loading fixtures...</p>
         ) : error ? (
-          <div className="rounded-2xl bg-white/10 p-8 text-center backdrop-blur-md">
+          <div className="rounded-2xl bg-white/10 p-8 text-center backdropblur-md">
             <Trophy className="mx-auto mb-3 text-red-400" />
             <p>{error}</p>
           </div>
@@ -151,13 +120,13 @@ export default function FixturesPage() {
                   <div className="flex items-center gap-2">
                     <CalendarDays size={16} />
                     <span>
-                      {fixture.fixtureDate
-                        ? new Date(fixture.fixtureDate).toLocaleString()
+                      {fixture.matchDate
+                        ? new Date(fixture.matchDate).toLocaleString()
                         : "No date"}
                     </span>
                   </div>
 
-                  {/* VENUE (from tournament) */}
+                  {/* VENUE */}
                   <div className="flex items-center gap-2">
                     <MapPin size={16} />
                     <span>{fixture.tournament?.location || "No venue"}</span>

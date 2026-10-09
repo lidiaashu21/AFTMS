@@ -3,9 +3,15 @@ import { z } from "zod";
 export const createPaymentSchema = z.object({
   body: z.object({
     teamId: z.string(),
+
     tournamentId: z.string(),
-    amount: z.number().min(1),
+
+    amount: z.number().positive(),
+
+    transactionNumber: z.string().min(3),
+
     receiptUrl: z.string().optional(),
+
     method: z.enum(["TELEBIRR", "CASH", "BANK"]),
   }),
 });

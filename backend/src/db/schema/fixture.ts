@@ -12,7 +12,7 @@ export const fixtures = pgTable("fixtures", {
 
   tournamentId: text("tournament_id")
     .notNull()
-    .references(() => tournaments.id),
+    .references(() => tournaments.id, { onDelete: "cascade" }),
 
   homeTeamId: text("home_team_id")
     .notNull()

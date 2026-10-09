@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   registerController,
   loginController,
+  googleLoginController,
   createAdminController,
   getAllAdminsController,
   getAdminByIdController,
@@ -17,6 +18,7 @@ const router = Router();
 /* AUTH */
 router.post("/register", registerController);
 router.post("/login", loginController);
+router.post("/google", googleLoginController);
 
 /* ADMIN CREATE */
 router.post(
